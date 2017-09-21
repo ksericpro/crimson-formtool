@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dynamic Form Designer</title>
+	
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个基于Bootstrap3的表单创建器。" />
+    <meta name="keywords" content="Bootstrap 3 Form Builder" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+	<link href="css/form.css" rel="stylesheet" type="text/css">
+	<link href="css/bootstrap-toggle.min.css" rel="stylesheet">
+	
+	<!--<script src="js/form.js" type="text/javascript"></script>-->
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap-toggle.min.js"></script>
+	
+	<script src="js/Entity_Utils.js"></script>
+    <!--<script>
+	$(function() {
+		$('#toggle-content').bootstrapToggle({
+			on: 'Content A',
+			off: 'Content B'
+		});
+	})
+	</script>-->
+
+
+</head>
+<body>
+
+
+ <div class="container">
+
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron mainregion">
+	
+		   <!-- Layout C-->
+		   <div class="row" id="Layout-C">
+			
+			
+				<div class="col-lg-12">
+		
+					<!-- Floating ToolBar -->
+					<div id="formtools_toolbar" style="background-color:#fff;border:1pt solid black; width:100pt;margin-right:5pt;float:right; font-size:8pt; font-weight:bold">
+						<p align="center"><a href="#">Save</a>&nbsp;<a href="#">Undo</a></p>
+					</div>
+				
+					<p align="center">Form Content A</p>
+					
+					<div id="main_div" style="border:1px dashed darkgrey; height:48px;margin-top:5pt">
+						<div style="float:right; margin-top: -10pt; margin-right:5pt">
+							<img src="images/plus.jpg" title="add"  id="add_element_1"/><img src="images/properties.png" title="properties" onclick="removeElement();"/>
+						</div>
+
+						<span style="float:left; font-size: 8pt; font-weight:bold; margin-left:5pt;">
+							<label id="main_div_Label">MAIN</label>
+						</span>
+					
+						<!--<br/>-->
+						<!--Main Dynamic Content-->
+						
+						<!--<div style="border:1px dashed black; height:40pt; width:96%;position:relative;left:20px;top:0px;height:110px;">
+							<div style="margin-right:5pt;float:right;">
+								<img src="images/plus.jpg" title="add"  id="add_element_2"/>&nbsp;<img src="images/minus.jpg" title="minus" onclick="removeElement();"/>&nbsp;<img src="images/properties.png" title="properties" onclick="removeElement();"/>
+							</div>	
+							<label id="title_2">MAIN_Child</label>
+
+							
+							<div style="border:1px dashed black; height:40pt; width:98%;position:absolute;left:10px;top:40px;">
+								<div style="margin-right:5pt;float:right;">
+									<img src="images/plus.jpg" title="add"  id="add_element_3"/>&nbsp;<img src="images/minus.jpg" title="minus" onclick="removeElement();"/>&nbsp;<img src="images/properties.png" title="properties" onclick="removeElement();"/>
+								</div>	
+								<label id="title_3">MAIN_Child_Child</label>
+							</div>
+						</div>-->
+
+					</div>
+				
+					
+					
+				</div>
+			</div>
+			
+			<script>
+				var div_id = 0;
+				var div_margin = 5;
+				var div_min_height = 48;
+				var div_block_height = 40;
+				var div_height_diff = 2;
+				var main_div_id = "main_div";
+				var SECTIONS = [];
+				var div_border_style = "1px dashed darkgrey";
+				
+				function newElement(parentDiv)
+				{
+					// Get Parent
+				    var pDiv = $("#" + parentDiv);
+					
+					//Check whether first Child
+					var firstchild = firstChildOfParentDiv(parentDiv);
+
+					//Adjust DIV down if first child
+					if (firstchild) {
+						AddBlocker(parentDiv);
+					}
+									
+					//Create New Div
+					var position = pDiv.position();
+					div_id++;
+					var div_identifier = parentDiv + "_childdiv_" + div_id;
+					var d = document.createElement('div');
+					$(d)
+					.css("border", div_border_style)
+					.css("margin-top", div_margin + "pt")
+					.css("margin-left", div_margin + "pt")
+					.css("margin-right", div_margin + "pt")
+					.height(div_min_height)
+					.appendTo($("#" + parentDiv)); //main div
+				
+					//Attach ID to div
+					console.log("Creating DIV:" + div_identifier);
+					$(d).attr("id", div_identifier);
+					
+					//span + Label
+					var span = document.createElement('span');
+					$(span)
+					.css("float", "left")
+					.css("font-size", "10pt")
+					.css("font-weight", "bold")
+					.css("margin-left", div_margin + "pt");
+					
+					var newlabel = document.createElement("Label");
+					newlabel.setAttribute("id", div_identifier + "_Label");
+					newlabel.innerHTML = div_identifier;
+					span.appendChild(newlabel);
+					
+					d.appendChild(span);
+					
+					//Add context menu		
+					var d2 = document.createElement('div');
+					$(d2)
+					.css("margin-right", "5pt")
+					.css("float", "right")
+					.css("margin-top", "-10pt");
+							
+					//plus icon
+					var a1 = document.createElement("IMG");
+					a1.setAttribute("src", "images/plus.jpg");
+					a1.setAttribute("id", "add_element");
+					d2.appendChild(a1);
+					
+					//Minus Icon
+					var a2 = document.createElement("IMG");
+					a2.setAttribute("src", "images/minus.jpg");
+					d2.appendChild(a2);
+						
+					//properties Icon
+					var a3 = document.createElement("IMG");
+					a3.setAttribute("src", "images/properties.png");
+					d2.appendChild(a3);
+					
+					//Handler
+					a1.setAttribute("onclick", "newElement('" + div_identifier + "')");
+					a2.setAttribute("onclick", "removeElement('" + parentDiv + "', '" + div_identifier+ "')");		
+					a3.setAttribute("onclick", "editProperty('" + div_identifier + "')");
+					
+					d.appendChild(d2);
+						
+					//Add to Section Tree
+					addToSectionTree(div_identifier, parentDiv);
+					
+					//Readjust Parents
+					readjustLayoutAfterAdd(div_identifier);	
+				}
+				
+				// Remove childDiv from parentDiv
+				function removeElement(parentDiv, childDiv){
+					if (childDiv == parentDiv){
+						console.log("The parent div cannot be removed.");
+					}
+					else if (document.getElementById(childDiv)){
+						var child = document.getElementById(childDiv);
+						var parent = document.getElementById(parentDiv);
+						
+						//readjust height of parent
+						readjustLayoutAfterDelete(parentDiv, childDiv);
+						
+						//Remove Child
+						parent.removeChild(child);		
+					}
+					else{
+						console.log("Child div has already been removed or does not exist.");
+						return false;
+					}		
+				}
+				
+				//Add Blocker
+				function AddBlocker(currentDiv)
+				{
+					var div_space = document.createElement('div');
+					$(div_space)
+					.css("height", div_block_height + "px");					
+					$(div_space).attr("id", currentDiv + "_Blocker");
+					
+					$("#"+currentDiv).append(div_space);
+				}
+				
+				//remove blocker
+				function RemoveBlocker(currentDiv)
+				{
+					var child = document.getElementById(currentDiv + "_Blocker");
+					var parent = document.getElementById(currentDiv);
+					//alert(child.clientHeight);
+					parent.removeChild(child);
+					
+					//Readjust Parent Height
+					//var height = parent.offsetHeight - child.offsetHeight - div_margin;
+					//if (height<div_min_height) height = div_min_height;
+					//$(parent)
+					//.css('height', height + "px");
+					
+					$(parent)
+					.css('height', div_min_height + "px");
+				}
+				
+				// Edit Properties of Div
+				function editProperty(childDiv)
+				{
+					$("#propertyModal").modal("show");
+					var label = jQuery("#"+childDiv).closest(".form-group").find("label");
+					var input = jQuery("#"+childDiv).closest(".form-group").find("input");
+					$("#property_select_widget_label_value").val(label.text());	
+					$("#property_select_widget_width_value").val(input.width());
+	
+					//add handler to button
+					$("#propertyModal-update").unbind( "click" );
+					$("#propertyModal-update").click(function() {
+						label.text($("#property_select_widget_label_value").val());	
+						var width = $("#property_select_widget_width_value").val();
+						if (!isNaN(width))
+						{
+							input.width(width);
+						}
+					});
+				}
+				
+				// Setup Context Menu for +
+				function setupContextMenu(element)
+				{
+					var div = $("#div_addmenu");
+					div.hide();
+					$('#' + element).unbind('click');
+					$('#' + element).bind('click',
+					function(e){
+						div.css( {position:"absolute", top:e.pageY, left: e.pageX - 100});					
+						div.show();
+					});
+					
+					div.mouseover( function( event) {
+						div.show();
+					}).mouseout( function(){ 
+						div.hide();
+					});
+				}
+				
+				// Setup Section Tree
+				function addToSectionTree(divID, parentID)
+				{
+					//Delete If Exists
+				    deleteFromSectionTree(divID);
+					
+					//Get Variables
+					var Label="";
+					var pDiv = $("#" + divID);
+					var child = document.getElementById(divID);
+					//var Height = pDiv.height();
+					//var Width = pDiv.width();
+					var Height = child.offsetHeight;
+					var Width =  child.offsetWidth;
+					
+					console.log("addToSectionTree::ClientHeight="+Height + ", OffsetHeight =" + child.offsetHeight);
+					var Label = $("#" + divID + "_Label").html();
+	
+					//Add to Tree
+					var ptree = new EntityUtils.SECTION_TREES("");
+					ptree.ID = divID;
+					ptree.ParentID = parentID;
+					ptree.Height = Height;
+					ptree.Width = Width;
+					ptree.Label = Label;
+					SECTIONS.push(ptree);
+				}
+				
+				//Delete from Section Tree
+				function deleteFromSectionTree(divID)
+				{
+					var found_index = -1
+					for (var i = 0; i < SECTIONS.length; i++) {
+						if (SECTIONS[i].ID==divID) {
+							found_index = i;
+							break;
+						}
+					}
+					
+					if (found_index!=-1)
+					{
+						SECTIONS.splice(found_index, 1);
+					}
+				}
+				
+				//Check whether any child
+				function firstChildOfParentDiv(parentDiv)
+				{
+					var found_index = -1
+					for (var i = 0; i < SECTIONS.length; i++) {
+						var ptree = SECTIONS[i];
+						if (ptree.ParentID == parentDiv)
+						{
+							found_index = i;
+							break;
+						}
+					}
+					if(found_index>-1)
+					{
+					    return false;
+					}
+					return true;
+				}
+				
+				//Get Parent of Current Div
+				function getParentOfDiv(currentDiv)
+				{
+					var found_index = -1
+					for (var i = 0; i < SECTIONS.length; i++) {
+						var ptree = SECTIONS[i];
+						if (ptree.ID == currentDiv)
+						{
+							found_index = i;
+							break;
+						}
+					}
+					if(found_index>-1)
+					{
+						return SECTIONS[i].ParentID;
+					}
+					return "";
+				}
+				
+				//Print Section Tree
+				function printSectionTree()
+				{
+					console.log("***Print Tree***")
+					for (var i = 0; i < SECTIONS.length; i++) {
+						var ptree = SECTIONS[i];
+						console.log("Div ID = " + ptree.ID + ", ParentID = " + ptree.ParentID + ", Height = " + ptree.Height + ", Width = " + ptree.Width + ", Label = " + ptree.Label);
+					}
+				}
+				
+				//Readjust the whole section after ADDING
+				function readjustLayoutAfterAdd(currentDiv)
+				{
+					var found_index = -1
+					for (var i = 0; i < SECTIONS.length; i++) {
+						//Do something
+						if (SECTIONS[i].ID==currentDiv) {
+							found_index = i;
+							break;
+						}
+					}
+					
+					if (found_index!=-1)
+					{
+						//console.log(currentDiv + " found@" + found_index + ", Parent ID=" + SECTIONS[found_index].ParentID);
+						var ptree = SECTIONS[found_index];
+						//console.log(currentDiv + "::Height = " + ptree.Height);
+						if (ptree.ParentID!="")
+						{
+							var parent = document.getElementById(ptree.ParentID);
+						
+							$(parent)
+							.css('height', parent.clientHeight + (ptree.Height+div_height_diff) + (div_margin+div_height_diff) + "px");
+						
+							//recursive for parents
+							readjustLayoutAfterAdd(ptree.ParentID);
+						}
+					}
+				}
+				
+				// Readjust Layout After Deleting
+				function readjustLayoutAfterDelete(parentDiv, childDiv)
+				{
+					var pDiv = $("#" + parentDiv);
+					//var cDiv = $("#" + childDiv);
+					
+					var parent = document.getElementById(parentDiv);
+					var child = document.getElementById(childDiv);
+					
+					//var height = pDiv.height() - cDiv.height() - div_margin;
+					var height = parent.offsetHeight - child.offsetHeight - div_margin;
+					if (height<div_min_height) height = div_min_height;
+					$(parent)
+					.css('height', height + "px");
+					
+					//Delete Blocker
+					
+					//recurseive parent
+					var gparentDiv = getParentOfDiv(parentDiv);
+					
+					//console.log("Parent of "+parentDiv + " = " + gparentDiv);
+					
+					//Delete from Tree
+					//printSectionTree();
+					deleteFromSectionTree(childDiv);
+					//printSectionTree();
+					
+					var nomorechild = firstChildOfParentDiv(parentDiv);
+					//console.log("No more Child "+parentDiv + "?=" + nomorechild);
+					if (nomorechild)
+					{
+						//remove the blocker
+						RemoveBlocker(parentDiv);
+						
+						console.log("Shrink "+parentDiv);
+					}
+					
+					if (gparentDiv!="")
+						readjustLayoutAfterDelete(gparentDiv, parentDiv);
+				}
+				
+				// Document Ready
+				$( document ).ready(function() {
+					// Handler for .ready() called.
+					setupContextMenu('add_element_1');
+					//setupContextMenu('add_element_2');
+					//setupContextMenu('add_element_3');
+					
+					addToSectionTree(main_div_id, "");
+				});
+				
+			</script>
+		   
+      </div>
+
+    </div> <!-- /container -->
+
+<footer class="footer" id="footer">
+      <div class="container">
+        <p class="text-muted"><span id="project_footer">All rights Reserved</span></p>
+      </div>
+ </footer>
+
+</html>
+
+</body>
+
+<!-- Div add menu-->
+<div id="div_addmenu" style="background-color:#111;border:1px solid black;">
+	<p>
+		<a href="javascript:newElement('main_div')">New Section</a>
+		<br/>
+		<a href="javascript:alert('not done');">New Text</a>
+	</p>
+</div>
+
+
+
+
+<!-- Modal -->
+<div id="propertyModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-sm">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Properties</h4>
+      </div>
+      <div class="modal-body">
+        	<div class="form-group">
+				<label for="label">Label:</label>
+				<input type="text" class="form-control" value=""  style="width: 100%;" id="property_select_widget_label_value">	
+		    </div>
+			
+			<div class="form-group">
+				<label for="label">Width:</label>
+				<input type="text" class="form-control" value=""  style="width: 100%;" id="property_select_widget_width_value">	
+		    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" id="propertyModal-update" class="btn btn-success">Update</button>
+      </div>
+    </div>
+
+</div>
